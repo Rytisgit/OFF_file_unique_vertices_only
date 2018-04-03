@@ -1,0 +1,76 @@
+OFF Files
+---------
+
+       The conventional suffix for `OFF' files is `.off'.
+
+       Syntax:
+
+            [C][N][4]OFF        # Header keyword (optional)
+            NVERTICES  NFACES  NEDGES   # NEdges not used or checked
+
+            X[0]  Y[0]  Z[0]    # Vertices, possibly with colors
+                           # and/or normals if `COFF' or `NOFF'
+            ...
+            X[NVERTICES-1]  Y[NVERTICES-1]  Z[NVERTICES-1]
+
+                           # Faces
+                           # NV = # vertices on this face
+                           # V[0] ... V[NV-1]: vertex indices
+                           #         in range 0..NVERTICES-1
+
+            NV  V[0] V[1] ... V[NV-1]  COLORSPEC
+            ...
+                           # COLORSPEC continues past V[NV-1]
+                           # to end-of-line; may be 0 to 4 numbers
+                           # nothing: default
+                           #  integer: colormap index
+                           # 3 or 4 integers: RGB[A] values 0..255
+                                # 3 or 4 floats: RGB[A] values 0..1
+
+       `OFF' files (name for "object file format") represent collections
+       of planar polygons with possibly shared vertices, a convenient way to
+       describe polyhedra.  The polygons may be concave but there's no
+       provision for polygons containing holes.
+
+       An `OFF' file may begin with the keyword `OFF'; it's
+       recommended but optional, as many existing files lack this keyword.
+
+       Three ASCII integers follow: NVERTICES, NFACES, and
+       NEDGES.  Thse are the number of vertices, faces, and edges,
+       respectively.  Current software does not use nor check NEDGES; it
+       needn't be correct but must be present.
+
+       The vertex coordinates follow: dimension * NVERTICES
+       floating-point values.  They're implicitly numbered 0 through
+       NVERTICES-1.  dimension is either 3 (default) or 4 (specified by
+       the key character `4' directly before `OFF' in the keyword).
+
+       Following these are the face descriptions, typically written
+       with one line per face.  Each has the form
+            N  VERT1 VERT2 ... VERTN  [COLOR]
+       Here N is the number of vertices on this face,
+       and VERT1 through VERTN are indices into the list of
+       vertices (in the range 0..NVERTICES-1).
+
+       The optional COLOR may take several forms.  Line breaks are
+       significant here: the COLOR description begins after VERTN
+       and ends with the end of the line (or the next # comment).  A
+       COLOR may be:
+
+       nothing
+            the default color
+       one integer
+            index into "the" colormap; see below
+       three or four integers
+            RGB and possibly alpha values in the range 0..255
+       three or four floating-point numbers
+            RGB and possibly alpha values in the range 0..1
+
+       For the one-integer case, the colormap is currently read from the file
+       `cmap.fmap' in Geomview's `data' directory.  Some better
+       mechanism for supplying a colormap is likely someday.
+
+       The meaning of "default color" varies.  If no face of the object has a
+       color, all inherit the environment's default material color.  If some
+       but not all faces have colors, the default is gray (R,G,B,A=.666).
+
